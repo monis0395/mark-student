@@ -1,18 +1,20 @@
 package com.mark.mark;
 
+import android.app.Application;
+
 /**
  * Created by Winner 10 on 4/12/2017.
  */
 
-public class StringRes {
-    public String HOSTNAME;
+public class StringRes extends Application {
 
-    StringRes(){
-        HOSTNAME = "http://192.168.0.103/mark_demo/";
+    private String HOSTNAME= "http://192.168.0.105/mark_demo/";
+
+    public void setHOSTNAME(String HOSTNAME) {
+        this.HOSTNAME = HOSTNAME;
     }
 
-    StringRes(String hostname){
-        HOSTNAME = hostname;
+    public String getHOSTNAME() {
+        return HOSTNAME;
     }
-
 }

@@ -1,6 +1,8 @@
 package com.mark.mark;
 
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -28,12 +30,12 @@ public class TempFP extends AppCompatActivity {
 
     SharedPreferences sharedPreferences;
     public static final String MyPREFERENCES = "MyPrefs" ;
-    public static String HOSTNAME;
-    public static final int CONNECTION_TIMEOUT=10000;
-    public static final int READ_TIMEOUT=15000;
     public static String subject;
     public static String teacher;
-    private TextView textError;
+    private String username;
+    private String column;
+    private String NFC_UID;
+    private String table;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,8 +43,6 @@ public class TempFP extends AppCompatActivity {
         setContentView(R.layout.activity_temp_fp);
         subject = getIntent().getStringExtra("subject");
         teacher = getIntent().getStringExtra("teacher");
-        HOSTNAME = getString(R.string.hostname);
-//        textError = (TextView) findViewById(R.id.errortext);
     }
 
     public void scanFingerprintWrong (View arg0){
@@ -58,127 +58,33 @@ public class TempFP extends AppCompatActivity {
                 Toast.LENGTH_LONG).show();
         Toast.makeText(TempFP.this, "Marked Present!", Toast.LENGTH_LONG).show();
 
-        Calendar c = Calendar.getInstance();
-        SimpleDateFormat df = new SimpleDateFormat("dd-MMM-yyyy");
-        String date = df.format(c.getTime());
-
+        String date = new SimpleDateFormat("dd-MMM-yyyy").format(Calendar.getInstance().getTime());
         sharedPreferences = getSharedPreferences(MyPREFERENCES, MainActivity.MODE_PRIVATE);
-        String NFC_UID = sharedPreferences.getString("NFC_UID","");
-        String username = sharedPreferences.getString("username","");
+        username = sharedPreferences.getString("username","");
+        column = date;
+        NFC_UID = sharedPreferences.getString("NFC_UID","");
+        table = subject+"-"+teacher;
 
-
-        String column = date;
-        String table = subject+"-"+teacher;
-        String output = "NFC_UID "+NFC_UID+"\nusername "+username+" \ncolumn "+column+" \ntable "+table+"\n";
-//        textError.setText(output);
-
-        new AsyncMark().execute(username,column,NFC_UID,table);
+        new AysnchTempFP(TempFP.this,"present.inc.php");
     }
+    private class AysnchTempFP extends GlobalAsyncTask{
 
-    private class AsyncMark extends AsyncTask<String, String, String>
-    {
-        ProgressDialog pdLoading = new ProgressDialog(TempFP.this);
-        HttpURLConnection conn;
-        URL url = null;
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-
-            //this method will be running on UI thread
-            pdLoading.setMessage("\tLoading...");
-            pdLoading.setCancelable(false);
-            pdLoading.show();
-
-        }
-        @Override
-        protected String doInBackground(String... params) {
-            try {
-
-                // Enter URL address where your php file resides
-                url = new URL(HOSTNAME+"present.inc.php");
-
-            } catch (MalformedURLException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-                return "exception MalformedURLException";
-            }
-            try {
-                // Setup HttpURLConnection class to send and receive data from php and mysql
-                conn = (HttpURLConnection)url.openConnection();
-                conn.setReadTimeout(READ_TIMEOUT);
-                conn.setConnectTimeout(CONNECTION_TIMEOUT);
-                conn.setRequestMethod("POST");
-
-                // setDoInput and setDoOutput method depict handling of both send and receive
-                conn.setDoInput(true);
-                conn.setDoOutput(true);
-
-                // Append parameters to URL
-                Uri.Builder builder = new Uri.Builder()
-                        .appendQueryParameter("username", params[0])
-                        .appendQueryParameter("column", params[1])
-                        .appendQueryParameter("NFC_UID", params[2])
-                        .appendQueryParameter("table", params[3]);
-                String query = builder.build().getEncodedQuery();
-
-                // Open connection for sending data
-                OutputStream os = conn.getOutputStream();
-                BufferedWriter writer = new BufferedWriter(
-                        new OutputStreamWriter(os, "UTF-8"));
-                writer.write(query);
-                writer.flush();
-                writer.close();
-                os.close();
-                conn.connect();
-
-            } catch (IOException e1) {
-                // TODO Auto-generated catch block
-                e1.printStackTrace();
-                return "exception conn";
-            }
-
-            try {
-
-                int response_code = conn.getResponseCode();
-
-                // Check if successful connection made
-                if (response_code == HttpURLConnection.HTTP_OK) {
-
-                    // Read data sent from server
-                    InputStream input = conn.getInputStream();
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(input));
-                    StringBuilder result = new StringBuilder();
-                    String line;
-
-                    while ((line = reader.readLine()) != null) {
-                        result.append(line);
-                    }
-
-                    // Pass data to onPostExecute method
-                    return (result.toString());
-
-                } else {
-
-                    return ("unsuccessful");
-                }
-
-            } catch (IOException e) {
-                e.printStackTrace();
-                return "exception response_code ";
-            } finally {
-                conn.disconnect();
-            }
-
-
+        AysnchTempFP(Context context, String url){
+            super(context,url);
+            execute();
         }
 
         @Override
-        protected void onPostExecute(String result) {
+        public Uri.Builder urlBuilder() {
+            return new Uri.Builder()
+                    .appendQueryParameter("username", username)
+                    .appendQueryParameter("column", column)
+                    .appendQueryParameter("NFC_UID", NFC_UID)
+                    .appendQueryParameter("table", table);
+        }
 
-            //this method will be running on UI thread
-
-            pdLoading.dismiss();
+        @Override
+        public void goPostExecute(String result,String content) {
 
             if(result.equalsIgnoreCase("true"))
             {
@@ -194,13 +100,10 @@ public class TempFP extends AppCompatActivity {
                 // If username and password does not match display a error message
                 Toast.makeText(TempFP.this, "Unable to Mark Present!", Toast.LENGTH_LONG).show();
 
-            } else {
-                textError.append(Html.fromHtml(result));
-                Toast.makeText(TempFP.this, "OOPs! Something went wrong. Connection Problem."+result, Toast.LENGTH_LONG).show();
-
             }
-
         }
 
     }
+
+
 }

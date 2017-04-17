@@ -1,12 +1,16 @@
 package com.mark.mark;
 
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -15,30 +19,17 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-
 public class MainActivity extends AppCompatActivity {
 
     // CONNECTION_TIMEOUT and READ_TIMEOUT are in milliseconds
 
-    public static final int CONNECTION_TIMEOUT=10000;
-    public static final int READ_TIMEOUT=15000;
     public static final String MyPREFERENCES = "MyPrefs" ;
     SharedPreferences sharedPreferences;
     private EditText etUsername;
     private EditText etPassword;
-    private String HOSTNAME;
     private String username;
     private String password;
+    private StringRes sr;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,13 +37,13 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         // Get Reference to variables
-        HOSTNAME = getString(R.string.hostname);
         etUsername = (EditText) findViewById(R.id.username);
         etPassword = (EditText) findViewById(R.id.password);
+        sr = ((StringRes)getApplicationContext());
         sharedPreferences = getSharedPreferences(MyPREFERENCES, MainActivity.MODE_PRIVATE);
         String username = sharedPreferences.getString("username","");
         if(!username.isEmpty()){
-            Intent intent = new Intent(MainActivity.this,SuccessActivity.class);
+            Intent intent = new Intent(MainActivity.this,Success2Activity.class);
             startActivity(intent);
             MainActivity.this.finish();
         }
@@ -66,116 +57,73 @@ public class MainActivity extends AppCompatActivity {
         password = etPassword.getText().toString();
 
         // Initialize  AsyncLogin() class with username and password
-        new AsyncLogin().execute(username,password);
+        new AysnchLogin(MainActivity.this,"login.inc.php");
     }
 
-    private class AsyncLogin extends AsyncTask<String, String, String>
-    {
-        ProgressDialog pdLoading = new ProgressDialog(MainActivity.this);
-        HttpURLConnection conn;
-        URL url = null;
+    public void changeHost(View arg0) {
 
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
+        // get prompts.xml view
+        LayoutInflater li = LayoutInflater.from(MainActivity.this);
+        View promptsView = li.inflate(R.layout.prompts, null);
 
-            //this method will be running on UI thread
-            pdLoading.setMessage("\tLoading...");
-            pdLoading.setCancelable(false);
-            pdLoading.show();
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+                MainActivity.this);
 
-        }
-        @Override
-        protected String doInBackground(String... params) {
-            try {
+        // set prompts.xml to alertdialog builder
+        alertDialogBuilder.setView(promptsView);
 
-                // Enter URL address where your php file resides
-                url = new URL(HOSTNAME+"login.inc.php");
+        final EditText userInput = (EditText) promptsView
+                .findViewById(R.id.editTextDialogUserInput);
 
-            } catch (MalformedURLException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-                return "exception";
-            }
-            try {
-                // Setup HttpURLConnection class to send and receive data from php and mysql
-                conn = (HttpURLConnection)url.openConnection();
-                conn.setReadTimeout(READ_TIMEOUT);
-                conn.setConnectTimeout(CONNECTION_TIMEOUT);
-                conn.setRequestMethod("POST");
+        // set dialog message
+        alertDialogBuilder
+                .setCancelable(false)
+                .setPositiveButton("OK",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,int id) {
+                                // get user input and set it to result
+                                // edit text
+                                sr.setHOSTNAME(userInput.getText().toString());
+                                Toast.makeText(MainActivity.this,"HOST set successfully!",Toast.LENGTH_LONG).show();
+                            }
+                        })
+                .setNegativeButton("Cancel",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,int id) {
+                                dialog.cancel();
+                            }
+                        });
 
-                // setDoInput and setDoOutput method depict handling of both send and receive
-                conn.setDoInput(true);
-                conn.setDoOutput(true);
+        // create alert dialog
+        AlertDialog alertDialog = alertDialogBuilder.create();
 
-                // Append parameters to URL
-                Uri.Builder builder = new Uri.Builder()
-                        .appendQueryParameter("username", params[0])
-                        .appendQueryParameter("password", params[1]);
-                String query = builder.build().getEncodedQuery();
+        // show it
+        alertDialog.show();
+//        Intent intent = new Intent(Login.this,SetHost.class);
+//        startActivity(intent);
 
-                // Open connection for sending data
-                OutputStream os = conn.getOutputStream();
-                BufferedWriter writer = new BufferedWriter(
-                        new OutputStreamWriter(os, "UTF-8"));
-                writer.write(query);
-                writer.flush();
-                writer.close();
-                os.close();
-                conn.connect();
+    }
 
-            } catch (IOException e1) {
-                // TODO Auto-generated catch block
-                e1.printStackTrace();
-                return "exception";
-            }
+    private class AysnchLogin extends GlobalAsyncTask{
 
-            try {
-
-                int response_code = conn.getResponseCode();
-
-                // Check if successful connection made
-                if (response_code == HttpURLConnection.HTTP_OK) {
-
-                    // Read data sent from server
-                    InputStream input = conn.getInputStream();
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(input));
-                    StringBuilder result = new StringBuilder();
-                    String line;
-
-                    while ((line = reader.readLine()) != null) {
-                        result.append(line);
-                    }
-
-                    // Pass data to onPostExecute method
-                    return (result.toString());
-
-                } else {
-
-                    return ("unsuccessful");
-                }
-
-            } catch (IOException e) {
-                e.printStackTrace();
-                return "exception";
-            } finally {
-                conn.disconnect();
-            }
-
-
+        AysnchLogin(Context context, String url){
+            super(context,url);
+            execute();
         }
 
         @Override
-        protected void onPostExecute(String result) {
+        public Uri.Builder urlBuilder() {
+            return new Uri.Builder()
+                    .appendQueryParameter("username", username)
+                    .appendQueryParameter("password", password);
+        }
 
-            //this method will be running on UI thread
+        @Override
+        public void goPostExecute(String result,String content) {
 
-            pdLoading.dismiss();
-
-            if(!result.equalsIgnoreCase("false") && !result.equalsIgnoreCase("exception") && !result.equalsIgnoreCase("unsuccessful"))
+            if(content.equalsIgnoreCase("application/json"))
 //            if(result.equalsIgnoreCase("true"))
             {
-
                 try {
                     JSONArray jArray = new JSONArray(result);
                     JSONObject json_data = jArray.getJSONObject(0);
@@ -188,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
                     editor.putString("uid", uid);
                     editor.apply();
 
-                    Intent intent = new Intent(MainActivity.this,SuccessActivity.class);
+                    Intent intent = new Intent(MainActivity.this,Success2Activity.class);
                     startActivity(intent);
                     MainActivity.this.finish();
 
@@ -196,22 +144,10 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(MainActivity.this, e.toString() + result, Toast.LENGTH_LONG).show();
                 }
 
-
             }else if (result.equalsIgnoreCase("false")){
-
-                // If username and password does not match display a error message
-                Toast.makeText(MainActivity.this, "Invalid username or password", Toast.LENGTH_LONG).show();
-
-            } else if (result.equalsIgnoreCase("exception") || result.equalsIgnoreCase("unsuccessful")) {
-
-                Toast.makeText(MainActivity.this, "OOPs! Something went wrong. Connection Problem.", Toast.LENGTH_LONG).show();
-
+                Toast.makeText(MainActivity.this, "Invalid email or password", Toast.LENGTH_LONG).show();
             }
-
         }
 
     }
-
-
-
 }

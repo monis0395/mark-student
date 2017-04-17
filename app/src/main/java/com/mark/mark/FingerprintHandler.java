@@ -113,6 +113,8 @@ public class FingerprintHandler extends
 
     private class AsyncMark extends AsyncTask<String, String, String>
     {
+
+
         ProgressDialog pdLoading = new ProgressDialog(appContext);
         HttpURLConnection conn;
         URL url = null;

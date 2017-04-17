@@ -46,10 +46,9 @@ public class SuccessActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_success);
+
         HOSTNAME = getString(R.string.hostname);
-
         sharedPreferences = getSharedPreferences(MyPREFERENCES, MainActivity.MODE_PRIVATE);
-
         //Make call to AsyncTask
         new AsyncFetch().execute();
     }
@@ -178,8 +177,6 @@ public class SuccessActivity extends AppCompatActivity {
 
             pdLoading.dismiss();
             List<DailyPeriod> data=new ArrayList<>();
-
-            pdLoading.dismiss();
             try {
 
                 JSONArray jArray = new JSONArray(result);
@@ -211,9 +208,6 @@ public class SuccessActivity extends AppCompatActivity {
                 mAdapter = new AdapterDailyPeriod(SuccessActivity.this, data);
                 dailyPeriod.setAdapter(mAdapter);
                 dailyPeriod.setLayoutManager(new LinearLayoutManager(SuccessActivity.this));
-
-
-
             } catch (JSONException e) {
                 Toast.makeText(SuccessActivity.this, e.toString(), Toast.LENGTH_LONG).show();
             }

@@ -34,14 +34,11 @@ import java.util.List;
 
 public class AdapterDailyPeriod extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private Context context;
+    private final Context context;
     private LayoutInflater inflater;
     List<DailyPeriod> data= Collections.emptyList();
     DailyPeriod current;
     int currentPos=0;
-    public static String HOSTNAME;
-    public static final int CONNECTION_TIMEOUT=10000;
-    public static final int READ_TIMEOUT=15000;
     public String current_location;
     public String current_subjectName;
     public String current_teacherName;
@@ -53,7 +50,6 @@ public class AdapterDailyPeriod extends RecyclerView.Adapter<RecyclerView.ViewHo
         this.context=context;
         inflater= LayoutInflater.from(context);
         this.data=data;
-        HOSTNAME = context.getString(R.string.hostname);
     }
 
     // Inflate the layout when viewholder created
@@ -84,114 +80,28 @@ public class AdapterDailyPeriod extends RecyclerView.Adapter<RecyclerView.ViewHo
             @Override
             public void onClick(View v) {
                 //Your code
-                new AsyncAccess().execute(current_did);
+                new AsyncAccess(context,"access.inc.php",current_did);
             }
         });
 
     }
 
-    private class AsyncAccess extends AsyncTask<String, String, String>
+    private class AsyncAccess extends GlobalAsyncTask
     {
-        ProgressDialog pdLoading = new ProgressDialog(context);
-        HttpURLConnection conn;
-        URL url = null;
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-
-            //this method will be running on UI thread
-            pdLoading.setMessage("\tLoading...");
-            pdLoading.setCancelable(false);
-            pdLoading.show();
-
+        private final String current_did;
+        AsyncAccess(Context context, String url,String current_did){
+            super(context,url);
+            this.current_did = current_did;
+            execute();
         }
         @Override
-        protected String doInBackground(String... params) {
-            try {
-
-                // Enter URL address where your php file resides
-                url = new URL(HOSTNAME+"access.inc.php");
-
-            } catch (MalformedURLException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-                return "exception";
-            }
-            try {
-                // Setup HttpURLConnection class to send and receive data from php and mysql
-                conn = (HttpURLConnection)url.openConnection();
-                conn.setReadTimeout(READ_TIMEOUT);
-                conn.setConnectTimeout(CONNECTION_TIMEOUT);
-                conn.setRequestMethod("POST");
-
-                // setDoInput and setDoOutput method depict handling of both send and receive
-                conn.setDoInput(true);
-                conn.setDoOutput(true);
-
-                // Append parameters to URL
-                Uri.Builder builder = new Uri.Builder()
-                        .appendQueryParameter("did", params[0]);
-                String query = builder.build().getEncodedQuery();
-
-                // Open connection for sending data
-                OutputStream os = conn.getOutputStream();
-                BufferedWriter writer = new BufferedWriter(
-                        new OutputStreamWriter(os, "UTF-8"));
-                writer.write(query);
-                writer.flush();
-                writer.close();
-                os.close();
-                conn.connect();
-
-            } catch (IOException e1) {
-                // TODO Auto-generated catch block
-                e1.printStackTrace();
-                return "exception";
-            }
-
-            try {
-
-                int response_code = conn.getResponseCode();
-
-                // Check if successful connection made
-                if (response_code == HttpURLConnection.HTTP_OK) {
-
-                    // Read data sent from server
-                    InputStream input = conn.getInputStream();
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(input));
-                    StringBuilder result = new StringBuilder();
-                    String line;
-
-                    while ((line = reader.readLine()) != null) {
-                        result.append(line);
-                    }
-
-                    // Pass data to onPostExecute method
-                    return (result.toString());
-
-                } else {
-
-                    return ("unsuccessful");
-                }
-
-            } catch (IOException e) {
-                e.printStackTrace();
-                return "exception";
-            } finally {
-                conn.disconnect();
-            }
-
-
+        Uri.Builder urlBuilder() {
+            return new Uri.Builder()
+                    .appendQueryParameter("did", current_did);
         }
 
         @Override
-        protected void onPostExecute(String result) {
-
-            //this method will be running on UI thread
-
-            pdLoading.dismiss();
-
+        void goPostExecute(String result, String content) {
             if(result.equalsIgnoreCase("true"))
             {
 //                Toast.makeText(context, "Access Granted!", Toast.LENGTH_LONG).show();
@@ -218,22 +128,12 @@ public class AdapterDailyPeriod extends RecyclerView.Adapter<RecyclerView.ViewHo
                     intent.putExtra("teacher", current_teacherName);
                     context.startActivity(intent);
                 }
-
-
-
-
-
             } else if (result.equalsIgnoreCase("false")){
 
                 // If attendance not started in database does not match display a error message
                 Toast.makeText(context, "Access denied!", Toast.LENGTH_LONG).show();
 
-            } else if (result.equalsIgnoreCase("exception") || result.equalsIgnoreCase("unsuccessful")) {
-
-                Toast.makeText(context, "OOPs! Something went wrong. Connection Problem.", Toast.LENGTH_LONG).show();
-
             }
-
         }
 
     }
