@@ -38,7 +38,7 @@ public class ScanFPActivity extends AppCompatActivity {
     private static final String KEY_NAME = "example_key";
     private Cipher cipher;
     private FingerprintManager.CryptoObject cryptoObject;
-    public static String subject;
+    private String subject,teacher,lec_location;
 
     @TargetApi(Build.VERSION_CODES.M)
     @Override
@@ -46,7 +46,10 @@ public class ScanFPActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scan_fp);
 
-        subject = getIntent().getStringExtra("subject");
+        subject = getIntent().getStringExtra("subject");;
+        teacher = getIntent().getStringExtra("teacher");
+        lec_location = getIntent().getStringExtra("lec_location");
+        setTitle("Scan Fignerprint");
 
         keyguardManager =
                 (KeyguardManager) getSystemService(KEYGUARD_SERVICE);
@@ -94,7 +97,7 @@ public class ScanFPActivity extends AppCompatActivity {
 
         if (cipherInit()) {
             cryptoObject = new FingerprintManager.CryptoObject(cipher);
-            FingerprintHandler helper = new FingerprintHandler(this, subject);
+            FingerprintHandler helper = new FingerprintHandler(this, subject,teacher,lec_location);
             helper.startAuth(fingerprintManager, cryptoObject);
         }
 

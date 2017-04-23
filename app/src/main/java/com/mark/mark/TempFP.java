@@ -45,6 +45,7 @@ public class TempFP extends AppCompatActivity {
         subject = getIntent().getStringExtra("subject");
         teacher = getIntent().getStringExtra("teacher");
         lec_location = getIntent().getStringExtra("lec_location");
+        setTitle("Scan Fignerprint");
     }
 
     public void scanFingerprintWrong (View arg0){

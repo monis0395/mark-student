@@ -19,7 +19,6 @@
         android:paddingLeft="@dimen/activity_horizontal_margin"
         android:paddingRight="@dimen/activity_horizontal_margin"
         android:paddingTop="@dimen/activity_horizontal_margin"
-        android:text="Scan FingerPrint"
         android:textColor="@color/White"
         android:textSize="21sp"
         android:textStyle="bold"

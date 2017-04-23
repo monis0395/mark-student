@@ -39,6 +39,7 @@ public class NFC extends AppCompatActivity {
         lec_location = getIntent().getStringExtra("lec_location");
         subject = getIntent().getStringExtra("subject");
         teacher = getIntent().getStringExtra("teacher");
+        setTitle("Scan NFC Tag");
     }
     // Triggers when Scan NFC Button clicked
     public void scanFingerprint(View arg0) {
