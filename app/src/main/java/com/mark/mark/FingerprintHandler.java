@@ -96,7 +96,8 @@ public class FingerprintHandler extends
     public void onAuthenticationSucceeded(
             FingerprintManager.AuthenticationResult result) {
 
-        Toast.makeText(appContext,"Authentication succeeded.\n Proceeding to Mark present",Toast.LENGTH_LONG).show();
+        Toast.makeText(appContext,"Authentication succeeded.\n Proceeding to Mark present",
+                Toast.LENGTH_LONG).show();
 
         sharedPreferences = appContext.getSharedPreferences(MyPREFERENCES, MainActivity.MODE_PRIVATE);
         Calendar c = Calendar.getInstance();
