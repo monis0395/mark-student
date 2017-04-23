@@ -36,10 +36,11 @@ public class Success2Activity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private StringRes sr;
-    private String username;
+    private String username, name;
     private RecyclerView dailyPeriod;
     private AdapterDailyPeriod mAdapter;
-    public static final String CLASS_ID = "1";
+    private String CLASS_ID;
+    TextView nav_username, nav_user;
     public SharedPreferences sharedPreferences;
     public static final String MyPREFERENCES = "MyPrefs" ;
 
@@ -59,9 +60,19 @@ public class Success2Activity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        navigationView.getMenu().getItem(0).setChecked(true);
+        View nav_header = navigationView.getHeaderView(0);
+        nav_username = (TextView) nav_header.findViewById(R.id.username);
+        nav_user = (TextView) nav_header.findViewById(R.id.user);
+        setTitle("Today");
+
 //        initialize variables
         sharedPreferences = getSharedPreferences(MyPREFERENCES, MainActivity.MODE_PRIVATE);
         username = sharedPreferences.getString("username","");
+        CLASS_ID = sharedPreferences.getString("classid","");
+        name = sharedPreferences.getString("name","");
+        nav_username.setText(username);
+        nav_user.setText(name);
         sr = ((StringRes)getApplicationContext());
         new AsyncFetch(Success2Activity.this,"dailyPeriod.inc.php");
     }
@@ -178,13 +189,11 @@ public class Success2Activity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
+        if (id == R.id.nav_today) {
             // Handle the camera action
         } else if (id == R.id.nav_gallery) {
 
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
+        } else if (id == R.id.nav_changeHost) {
 
             // get prompts.xml view
             LayoutInflater li = LayoutInflater.from(Success2Activity.this);
@@ -226,9 +235,14 @@ public class Success2Activity extends AppCompatActivity
 //            Intent intent = new Intent(Success2Activity.this,SetHost.class);
 //            startActivity(intent);
 
-        } else if (id == R.id.nav_share) {
+        } else if (id == R.id.nav_logout) {
 
-        } else if (id == R.id.nav_send) {
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.clear();
+            editor.commit();
+            Intent intent = new Intent(Success2Activity.this,MainActivity.class);
+            startActivity(intent);
+            Success2Activity.this.finish();
 
         }
 

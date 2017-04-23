@@ -30,11 +30,12 @@ public class TempFP extends AppCompatActivity {
 
     SharedPreferences sharedPreferences;
     public static final String MyPREFERENCES = "MyPrefs" ;
-    public static String subject;
-    public static String teacher;
+    private String subject;
+    private String teacher;
     private String username;
     private String column;
     private String NFC_UID;
+    private String lec_location;
     private String table;
 
     @Override
@@ -43,6 +44,7 @@ public class TempFP extends AppCompatActivity {
         setContentView(R.layout.activity_temp_fp);
         subject = getIntent().getStringExtra("subject");
         teacher = getIntent().getStringExtra("teacher");
+        lec_location = getIntent().getStringExtra("lec_location");
     }
 
     public void scanFingerprintWrong (View arg0){
@@ -53,10 +55,8 @@ public class TempFP extends AppCompatActivity {
 
     public void scanFingerprint(View arg0) {
 
-        Toast.makeText(TempFP.this,
-                "Authentication succeeded.\nProceeding to Mark present",
-                Toast.LENGTH_LONG).show();
-        Toast.makeText(TempFP.this, "Marked Present!", Toast.LENGTH_LONG).show();
+//        Toast.makeText(TempFP.this,"Authentication succeeded.\nProceeding to Mark present",Toast.LENGTH_SHORT).show();
+//        Toast.makeText(TempFP.this, "Marked Present!", Toast.LENGTH_LONG).show();
 
         String date = new SimpleDateFormat("dd-MMM-yyyy").format(Calendar.getInstance().getTime());
         sharedPreferences = getSharedPreferences(MyPREFERENCES, MainActivity.MODE_PRIVATE);
@@ -80,6 +80,7 @@ public class TempFP extends AppCompatActivity {
                     .appendQueryParameter("username", username)
                     .appendQueryParameter("column", column)
                     .appendQueryParameter("NFC_UID", NFC_UID)
+                    .appendQueryParameter("location", lec_location)
                     .appendQueryParameter("table", table);
         }
 
@@ -101,6 +102,7 @@ public class TempFP extends AppCompatActivity {
                 Toast.makeText(TempFP.this, "Unable to Mark Present!", Toast.LENGTH_LONG).show();
 
             }
+//            Toast.makeText(TempFP.this, "Kuch b nahi Present!" + result, Toast.LENGTH_LONG).show();
         }
 
     }

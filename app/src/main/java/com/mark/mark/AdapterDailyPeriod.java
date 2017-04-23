@@ -102,32 +102,33 @@ public class AdapterDailyPeriod extends RecyclerView.Adapter<RecyclerView.ViewHo
 
         @Override
         void goPostExecute(String result, String content) {
+            Intent intent;
             if(result.equalsIgnoreCase("true"))
             {
 //                Toast.makeText(context, "Access Granted!", Toast.LENGTH_LONG).show();
 
-                String NFC_location = sharedPreferences.getString("NFC_location","");
-                Toast.makeText(context, NFC_location, Toast.LENGTH_LONG).show();
-                if(!NFC_location.isEmpty() && NFC_location.equalsIgnoreCase(current_location)){
+                String NFC_UID = sharedPreferences.getString("NFC_UID","");
+                if(!NFC_UID.isEmpty()){
                     String NFC_TimeMills = sharedPreferences.getString("NFC_TimeMills","");
                     long NFC_mills = Long.parseLong(NFC_TimeMills);
                     long timemillis = System.currentTimeMillis();
-                    long diff = timemillis - NFC_mills;
-                    if(diff < 301){
-                        Toast.makeText(context, "Diff: "+diff, Toast.LENGTH_LONG).show();
-                        Intent intent =  new Intent(context, TempFP.class);
-                        intent.putExtra("subject", current_subjectName);
-                        intent.putExtra("teacher", current_teacherName);
-                        context.startActivity(intent);
+                    long diff = (timemillis - NFC_mills) / 1000;
+                    if(diff < 15){
+                        Toast.makeText(context, NFC_UID, Toast.LENGTH_LONG).show();
+                        intent =  new Intent(context, TempFP.class);
                     }
+                    else {
+                        intent =  new Intent(context, NFC.class);
+                    }
+                    Toast.makeText(context, "Diff: "+diff, Toast.LENGTH_LONG).show();
                 }
-                else{
-                    Intent intent =  new Intent(context, NFC.class);
-                    intent.putExtra("lec_location", current_location);
-                    intent.putExtra("subject", current_subjectName);
-                    intent.putExtra("teacher", current_teacherName);
-                    context.startActivity(intent);
-                }
+                else
+                    intent =  new Intent(context, NFC.class);
+
+                intent.putExtra("lec_location", current_location);
+                intent.putExtra("subject", current_subjectName);
+                intent.putExtra("teacher", current_teacherName);
+                context.startActivity(intent);
             } else if (result.equalsIgnoreCase("false")){
 
                 // If attendance not started in database does not match display a error message

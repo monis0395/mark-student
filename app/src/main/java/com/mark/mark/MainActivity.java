@@ -127,14 +127,16 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     JSONArray jArray = new JSONArray(result);
                     JSONObject json_data = jArray.getJSONObject(0);
-                    String uid = json_data.getString("uid");
+                    String classid = json_data.getString("classid");
+                    String name = json_data.getString("name");
 
 //                    Toast.makeText(MainActivity.this, result, Toast.LENGTH_LONG).show();
 
                     SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.putString("username", username);
-                    editor.putString("uid", uid);
-                    editor.apply();
+                    editor.putString("name", name);
+                    editor.putString("classid", classid);
+                    editor.commit();
 
                     Intent intent = new Intent(MainActivity.this,Success2Activity.class);
                     startActivity(intent);
