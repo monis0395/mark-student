@@ -10,7 +10,8 @@ import org.json.JSONObject;
  * Created by monis.q on 08-10-2017.
  */
 
-public class UserDetails {
+class UserDetails {
+
     public static String uid, sid, studentid, sname, cname, cid, clid, batchid;
     Context context;
 

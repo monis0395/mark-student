@@ -47,17 +47,17 @@ public class LoginActivity extends AppCompatActivity {
         username = etUsername.getText().toString();
         password = etPassword.getText().toString();
 
-        new AysnchLogin(self,"login.php");
+        new AysnchLogin(self, "login.php");
     }
 
     public void changeHost(View args0) {
         Util.changeHost(self);
     }
 
-    private class AysnchLogin extends GlobalAsyncTask{
+    private class AysnchLogin extends GlobalAsyncTask {
 
-        AysnchLogin(Context context, String url){
-            super(context,url);
+        AysnchLogin(Context context, String url) {
+            super(context, url);
             execute();
         }
 
@@ -69,10 +69,9 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         @Override
-        public void goPostExecute(String result,String content) {
+        public void goPostExecute(String result, String content) {
 
-            if(content.equalsIgnoreCase("application/json"))
-            {
+            if (content.equalsIgnoreCase("application/json")) {
                 try {
                     JSONArray jArray = new JSONArray(result);
                     JSONObject userObject = jArray.getJSONObject(0);
@@ -86,7 +85,7 @@ public class LoginActivity extends AppCompatActivity {
                     Toast.makeText(self, e.toString(), Toast.LENGTH_LONG).show();
                 }
 
-            }else if (result.equalsIgnoreCase("false")){
+            } else if (result.equalsIgnoreCase("false")) {
                 Toast.makeText(self, "Invalid email or password", Toast.LENGTH_LONG).show();
             } else if (result.equalsIgnoreCase("values not set")) {
                 Toast.makeText(self, "Values Not Set!", Toast.LENGTH_LONG).show();

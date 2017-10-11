@@ -8,7 +8,7 @@ import android.app.Application;
 
 public class StringRes extends Application {
 
-    private String HOSTNAME= "http://172.16.164.175/mark_php/";
+    private String HOSTNAME = "http://172.16.164.175/mark_php/";
 
     public void setHOSTNAME(String HOSTNAME) {
         this.HOSTNAME = HOSTNAME;

@@ -20,24 +20,24 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 
-abstract class GlobalAsyncTask extends android.os.AsyncTask<String, String, String>
-{
+abstract class GlobalAsyncTask extends android.os.AsyncTask<String, String, String> {
     private Context context;
     private String URL;
-    private URL url= null;
+    private URL url = null;
     private HttpURLConnection conn;
     private ProgressDialog pdLoading;
-    private static final int CONNECTION_TIMEOUT=10000;
-    private static final int READ_TIMEOUT=15000;
+    private static final int CONNECTION_TIMEOUT = 10000;
+    private static final int READ_TIMEOUT = 15000;
 
     abstract Uri.Builder urlBuilder();
+
     abstract void goPostExecute(String result, String content);
 
-    GlobalAsyncTask(Context context, String fileName){
+    GlobalAsyncTask(Context context, String fileName) {
         this.context = context;
-        StringRes sr = ((StringRes)context.getApplicationContext());
+        StringRes sr = ((StringRes) context.getApplicationContext());
         String HOSTNAME = sr.getHOSTNAME();
-        URL = HOSTNAME +""+fileName;
+        URL = HOSTNAME + "" + fileName;
         pdLoading = new ProgressDialog(context);
     }
 
@@ -61,12 +61,12 @@ abstract class GlobalAsyncTask extends android.os.AsyncTask<String, String, Stri
         } catch (MalformedURLException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-            return "URL exception\n<br>"+e;
+            return "URL exception\n<br>" + e;
         }
 
         try {
             // Setup HttpURLConnection class to send and receive data from php and mysql
-            conn = (HttpURLConnection)url.openConnection();
+            conn = (HttpURLConnection) url.openConnection();
             conn.setReadTimeout(READ_TIMEOUT);
             conn.setConnectTimeout(CONNECTION_TIMEOUT);
             conn.setRequestMethod("POST");
@@ -75,7 +75,7 @@ abstract class GlobalAsyncTask extends android.os.AsyncTask<String, String, Stri
             conn.setDoInput(true);
             conn.setDoOutput(true);
 
-             // Append parameters to URL
+            // Append parameters to URL
 
             Uri.Builder builder = urlBuilder();
             builder.appendQueryParameter("type", "0");
@@ -94,7 +94,7 @@ abstract class GlobalAsyncTask extends android.os.AsyncTask<String, String, Stri
         } catch (IOException e1) {
             // TODO Auto-generated catch block
             e1.printStackTrace();
-            return "HTTP exception\n<br>"+e1;
+            return "HTTP exception\n<br>" + e1;
         }
 
         try {
@@ -115,16 +115,16 @@ abstract class GlobalAsyncTask extends android.os.AsyncTask<String, String, Stri
                 }
 
                 // Pass data to onPostExecute method
-                return(result.toString());
+                return (result.toString());
 
-            }else{
+            } else {
 
-                return("unsuccessful");
+                return ("unsuccessful");
             }
 
         } catch (IOException e) {
             e.printStackTrace();
-            return "IO exception\n<br>"+e;
+            return "IO exception\n<br>" + e;
         } finally {
             conn.disconnect();
         }
@@ -136,28 +136,27 @@ abstract class GlobalAsyncTask extends android.os.AsyncTask<String, String, Stri
         //this method will be running on UI thread
         pdLoading.dismiss();
 
-       if(!result.contains("exception") && !result.contains("unsuccessful"))
-        {
+        if (!result.contains("exception") && !result.contains("unsuccessful")) {
             String content = conn.getContentType();
             goPostExecute(result, content);
 
-        }else if (result.equalsIgnoreCase("unsuccessful")) {
+        } else if (result.equalsIgnoreCase("unsuccessful")) {
 
             Toast.makeText(context, "OOPs! Something went wrong. Connection Problem.", Toast.LENGTH_LONG).show();
 
-        }else {
-           AlertDialog alertDialog = new AlertDialog.Builder(context).create();
-           alertDialog.setTitle("Error");
-           alertDialog.setMessage(Html.fromHtml(result)+"\n");
-           alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
-                   new DialogInterface.OnClickListener() {
-                       public void onClick(DialogInterface dialog, int which) {
-                           dialog.dismiss();
-                       }
-                   });
-           alertDialog.show();
+        } else {
+            AlertDialog alertDialog = new AlertDialog.Builder(context).create();
+            alertDialog.setTitle("Error");
+            alertDialog.setMessage(Html.fromHtml(result) + "\n");
+            alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+            alertDialog.show();
 
-       }
+        }
     }
 
 }

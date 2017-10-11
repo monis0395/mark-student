@@ -1,34 +1,26 @@
 package com.mark.mark;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
-import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.EditText;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class DailyPeriodActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -45,7 +37,7 @@ public class DailyPeriodActivity extends AppCompatActivity
         setTitle("Today");
         sideNavInit();
 
-        new AsyncFetch(DailyPeriodActivity.this,"daily.php");
+        new AsyncFetch(DailyPeriodActivity.this, "daily.php");
     }
 
     void sideNavInit() {
@@ -67,31 +59,28 @@ public class DailyPeriodActivity extends AppCompatActivity
         nav_user.setText(UserDetails.sname);
     }
 
-
-    // Triggers when Scan NFC Button clicked
     public void scanNFC(View arg0) {
 
         String tagUID = "C09705f7";
         String location = "61";
-        long time= System.currentTimeMillis();
+        long time = System.currentTimeMillis();
         SharedPreferences sp = self.getSharedPreferences("MarkUserDetails", Context.MODE_PRIVATE);
 
         SharedPreferences.Editor editor = sp.edit();
         editor.putString("NFC_Location", location);
-        editor.putString("NFC_TimeMills", time+"");
+        editor.putString("NFC_TimeMills", time + "");
         editor.putString("NFC_UID", tagUID);
         editor.apply();
 
-
-        Intent intent =  new Intent(DailyPeriodActivity.this, ScanFPActivity.class);
-        intent.putExtra("subject","Enterprise Resource Planning");
+        Intent intent = new Intent(DailyPeriodActivity.this, ScanFPActivity.class);
+        intent.putExtra("subject", "Enterprise Resource Planning");
         startActivity(intent);
     }
 
-    private class AsyncFetch extends GlobalAsyncTask{
+    private class AsyncFetch extends GlobalAsyncTask {
 
-        AsyncFetch(Context context, String url){
-            super(context,url);
+        AsyncFetch(Context context, String url) {
+            super(context, url);
             execute();
         }
 
@@ -109,8 +98,8 @@ public class DailyPeriodActivity extends AppCompatActivity
                 JSONArray jArray = new JSONArray(result);
 
                 TextView textPeriod;
-                textPeriod= (TextView) findViewById(R.id.textPeriod);
-                textPeriod.setText("/ "+jArray.length()+"");
+                textPeriod = (TextView) findViewById(R.id.textPeriod);
+                textPeriod.setText("/ " + jArray.length() + "");
 
                 DailyPeriod dp = new DailyPeriod();
 
@@ -125,6 +114,7 @@ public class DailyPeriodActivity extends AppCompatActivity
         }
 
     }
+
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -172,7 +162,6 @@ public class DailyPeriodActivity extends AppCompatActivity
             Intent intent = new Intent(DailyPeriodActivity.this, LoginActivity.class);
             startActivity(intent);
             DailyPeriodActivity.this.finish();
-
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
