@@ -3,7 +3,6 @@ package com.mark.mark;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.nfc.NfcAdapter;
 import android.nfc.tech.IsoDep;
 import android.nfc.tech.MifareClassic;
@@ -13,9 +12,10 @@ import android.nfc.tech.NfcA;
 import android.nfc.tech.NfcB;
 import android.nfc.tech.NfcF;
 import android.nfc.tech.NfcV;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.view.Window;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,8 +23,7 @@ public class NFC extends AppCompatActivity {
 
     private NfcAdapter nfcAdapter;
     TextView textViewInfo;
-    SharedPreferences sharedPreferences;
-    public static final String MyPREFERENCES = "MyPrefs";
+    public static DailyPeriod current;
     public static String lec_location;
     public static String subject;
     public static String teacher;
@@ -33,12 +32,11 @@ public class NFC extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_nfc);
-        textViewInfo = (TextView) findViewById(R.id.textInfo);
-        sharedPreferences = getSharedPreferences(MyPREFERENCES, LoginActivity.MODE_PRIVATE);
-        lec_location = getIntent().getStringExtra("lec_location");
-        subject = getIntent().getStringExtra("subject");
-        teacher = getIntent().getStringExtra("teacher");
         setTitle("Scan NFC Tag");
+        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+
+//        textViewInfo = (TextView) findViewById(R.id.textInfo);
+        current = (DailyPeriod) getIntent().getSerializableExtra("current");
     }
 
     // Triggers when Scan NFC Button clicked
@@ -47,6 +45,7 @@ public class NFC extends AppCompatActivity {
         intent.putExtra("subject", subject);
         intent.putExtra("teacher", teacher);
         intent.putExtra("lec_location", lec_location);
+        intent.putExtra("current", current);
         startActivity(intent);
         finish();
     }
@@ -90,16 +89,16 @@ public class NFC extends AppCompatActivity {
     protected void onNewIntent(Intent intent) {
         if (intent.getAction().equals(NfcAdapter.ACTION_TAG_DISCOVERED)) {
             String tagUID = "" + ByteArrayToHexString(intent.getByteArrayExtra(NfcAdapter.EXTRA_ID));
-            ((TextView) findViewById(R.id.textInfo)).setText("NFC Tag\n" + tagUID);
-            long time = System.currentTimeMillis();
 
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putString("NFC_TimeMills", time + "");
-            editor.putString("NFC_UID", tagUID);
-            editor.commit();
+//            ((TextView) findViewById(R.id.textInfo)).setText("NFC Tag\n" + tagUID);
 
-            Toast.makeText(NFC.this, "NFC Detected UID: " + tagUID, Toast.LENGTH_LONG).show();
-            Toast.makeText(NFC.this, "Token Generated", Toast.LENGTH_SHORT).show();
+            Toast.makeText(NFC.this, "NFC Detected", Toast.LENGTH_LONG).show();
+            Intent _intent = new Intent(NFC.this, ScanFPActivity.class);
+            _intent.putExtra("current", current);
+            _intent.putExtra("tagUID", tagUID);
+
+            startActivity(intent);
+            finish();
         }
     }
 

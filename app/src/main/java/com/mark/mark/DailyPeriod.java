@@ -4,6 +4,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,7 +12,7 @@ import java.util.List;
  * Created by Winner 10 on 2/19/2017.
  */
 
-public class DailyPeriod {
+public class DailyPeriod implements Serializable {
     String did, clid, subid, tid, subname, tname, subtype, START, END, location, batchid, cname, subsemester, cid, access;
 
     DailyPeriod parseObject(JSONObject data) throws JSONException {

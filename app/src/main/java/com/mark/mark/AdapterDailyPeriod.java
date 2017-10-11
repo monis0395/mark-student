@@ -25,10 +25,6 @@ class AdapterDailyPeriod extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private LayoutInflater inflater;
     private List<DailyPeriod> data = Collections.emptyList();
 
-    private String current_location, current_subjectName, current_teacherName;
-    private SharedPreferences sharedPreferences;
-    private static final String MyPREFERENCES = "MyPrefs";
-
     AdapterDailyPeriod(Context context, List<DailyPeriod> data) {
         this.context = context;
         inflater = LayoutInflater.from(context);
@@ -39,11 +35,9 @@ class AdapterDailyPeriod extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = inflater.inflate(R.layout.container_daily, parent, false);
         MyHolder holder = new MyHolder(view);
-        sharedPreferences = context.getSharedPreferences(MyPREFERENCES, LoginActivity.MODE_PRIVATE);
         return holder;
     }
 
-    // Bind data
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
 
@@ -59,63 +53,38 @@ class AdapterDailyPeriod extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             myHolder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    new AsyncAccess(context, "access.inc.php", current.did);
+                    new AsyncAccess(context, "check_access.php", current);
                 }
             });
         } else {
             myHolder.itemView.setBackgroundColor(ContextCompat.getColor(context, R.color.LightGrey));
         }
-
-        current_location = current.location;
-        current_subjectName = current.subname;
-        current_teacherName = current.tname;
-
     }
 
     private class AsyncAccess extends GlobalAsyncTask {
-        private final String current_did;
+        private final DailyPeriod current;
 
-        AsyncAccess(Context context, String url, String current_did) {
+        AsyncAccess(Context context, String url, DailyPeriod current) {
             super(context, url);
-            this.current_did = current_did;
+            this.current = current;
             execute();
         }
 
         @Override
         Uri.Builder urlBuilder() {
-            return new Uri.Builder()
-                    .appendQueryParameter("did", current_did);
+            return new Uri.Builder().appendQueryParameter("did", current.did);
         }
 
         @Override
         void goPostExecute(String result, String content) {
             Intent intent;
             if (result.equalsIgnoreCase("true")) {
-
-                String NFC_UID = sharedPreferences.getString("NFC_UID", "");
-                if (!NFC_UID.isEmpty()) {
-                    String NFC_TimeMills = sharedPreferences.getString("NFC_TimeMills", "");
-                    long NFC_mills = Long.parseLong(NFC_TimeMills);
-                    long timemillis = System.currentTimeMillis();
-                    long diff = (timemillis - NFC_mills) / 1000;
-                    if (diff < 15) {
-                        Toast.makeText(context, NFC_UID, Toast.LENGTH_LONG).show();
-                        intent = new Intent(context, TempFP.class);
-                    } else {
-                        intent = new Intent(context, NFC.class);
-                    }
-                    Toast.makeText(context, "Diff: " + diff, Toast.LENGTH_LONG).show();
-                } else
-                    intent = new Intent(context, NFC.class);
-
-                intent.putExtra("lec_location", current_location);
-                intent.putExtra("subject", current_subjectName);
-                intent.putExtra("teacher", current_teacherName);
+                intent = new Intent(context, NFC.class);
+                intent.putExtra("lec_location", current.location);
                 context.startActivity(intent);
+
             } else if (result.equalsIgnoreCase("false")) {
-
                 Toast.makeText(context, "Access denied!", Toast.LENGTH_LONG).show();
-
             }
         }
 

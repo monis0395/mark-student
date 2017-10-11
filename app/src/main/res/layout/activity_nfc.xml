@@ -6,10 +6,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.mark.mark.NFC"
-    android:background="@drawable/p7_background">
+    android:background="@drawable/p7_background"
+    style="@style/AppTheme.NoActionBar">
 
 
-    <TextView
+    <!--<TextView
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -49,17 +50,27 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentBottom="true"
         android:fontFamily="sans-serif-medium"
-        android:textSize="18sp" />
+        android:textSize="18sp" />-->
 
     <ImageView
         android:id="@+id/imageView2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="143dp"
-        android:scaleX="4"
-        android:scaleY="4"
+        android:scaleX="5"
+        android:scaleY="5"
         app:srcCompat="@drawable/ic_nfc_white_24px"
-        android:layout_below="@+id/textInfo"
+        android:layout_marginTop="207dp"
+        android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:id="@+id/textView4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/imageView2"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="85dp"
+        android:textColor="@color/White"
+        android:text="Please Scan NFC Tag" />
 
 </RelativeLayout>
