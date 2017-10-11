@@ -48,7 +48,7 @@ public class SuccessActivity extends AppCompatActivity {
         setContentView(R.layout.activity_success);
 
         HOSTNAME = getString(R.string.hostname);
-        sharedPreferences = getSharedPreferences(MyPREFERENCES, MainActivity.MODE_PRIVATE);
+        sharedPreferences = getSharedPreferences(MyPREFERENCES, LoginActivity.MODE_PRIVATE);
         //Make call to AsyncTask
         new AsyncFetch().execute();
     }
@@ -191,14 +191,14 @@ public class SuccessActivity extends AppCompatActivity {
                     DailyPeriod periodData = new DailyPeriod();
 
                     periodData.did = json_data.getString("did");
-                    periodData.subjectName= json_data.getString("Subject");
-                    periodData.teacherName= json_data.getString("Teacher");
+                    periodData.subname= json_data.getString("Subject");
+                    periodData.tname= json_data.getString("Teacher");
 
                     String tstart = json_data.getString("Time Start");
                     String tend = json_data.getString("Time End");
 
-                    periodData.startTime= tstart.substring(0,tstart.length()-7);
-                    periodData.endTime = tend.substring(0,tend.length()-7);
+                    periodData.START= tstart.substring(0,tstart.length()-3);
+                    periodData.END = tend.substring(0,tend.length()-3);
                     periodData.location = json_data.getString("location");
                     data.add(periodData);
                 }

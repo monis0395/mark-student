@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="com.mark.mark.Success2Activity"
+    tools:context="com.mark.mark.DailyPeriodActivity"
     tools:showIn="@layout/app_bar_success2"
     android:background="#7575A9">
 

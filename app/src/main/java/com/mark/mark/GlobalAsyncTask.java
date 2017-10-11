@@ -78,6 +78,7 @@ abstract class GlobalAsyncTask extends android.os.AsyncTask<String, String, Stri
              // Append parameters to URL
 
             Uri.Builder builder = urlBuilder();
+            builder.appendQueryParameter("type", "0");
             String query = builder.build().getEncodedQuery();
 
             // Open connection for sending data

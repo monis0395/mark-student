@@ -1,28 +1,13 @@
 package com.mark.mark;
 
-import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.Html;
 import android.view.View;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
@@ -60,7 +45,7 @@ public class TempFP extends AppCompatActivity {
 //        Toast.makeText(TempFP.this, "Marked Present!", Toast.LENGTH_LONG).show();
 
         String date = new SimpleDateFormat("dd-MMM-yyyy").format(Calendar.getInstance().getTime());
-        sharedPreferences = getSharedPreferences(MyPREFERENCES, MainActivity.MODE_PRIVATE);
+        sharedPreferences = getSharedPreferences(MyPREFERENCES, LoginActivity.MODE_PRIVATE);
         username = sharedPreferences.getString("username","");
         column = date;
         NFC_UID = sharedPreferences.getString("NFC_UID","");

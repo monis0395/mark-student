@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.nfc.NfcAdapter;
-import android.nfc.Tag;
 import android.nfc.tech.IsoDep;
 import android.nfc.tech.MifareClassic;
 import android.nfc.tech.MifareUltralight;
@@ -35,7 +34,7 @@ public class NFC extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_nfc);
         textViewInfo = (TextView)findViewById(R.id.textInfo);
-        sharedPreferences = getSharedPreferences(MyPREFERENCES, MainActivity.MODE_PRIVATE);
+        sharedPreferences = getSharedPreferences(MyPREFERENCES, LoginActivity.MODE_PRIVATE);
         lec_location = getIntent().getStringExtra("lec_location");
         subject = getIntent().getStringExtra("subject");
         teacher = getIntent().getStringExtra("teacher");
@@ -43,7 +42,7 @@ public class NFC extends AppCompatActivity {
     }
     // Triggers when Scan NFC Button clicked
     public void scanFingerprint(View arg0) {
-        Intent intent =  new Intent(NFC.this, TempFP.class);
+        Intent intent =  new Intent(NFC.this, ScanFPActivity.class);
         intent.putExtra("subject", subject);
         intent.putExtra("teacher", teacher);
         intent.putExtra("lec_location", lec_location);

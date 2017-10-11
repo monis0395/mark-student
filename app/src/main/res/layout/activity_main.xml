@@ -13,7 +13,7 @@
     android:layout_centerInParent="true"
     android:scaleType="centerCrop"
     android:background="@drawable/p7_background"
-    tools:context="com.mark.mark.MainActivity">
+    tools:context="com.mark.mark.LoginActivity">
 
     <EditText
         android:layout_width="match_parent"
