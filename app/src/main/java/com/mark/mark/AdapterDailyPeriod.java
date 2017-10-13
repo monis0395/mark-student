@@ -80,7 +80,7 @@ class AdapterDailyPeriod extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             Intent intent;
             if (result.equalsIgnoreCase("true")) {
                 intent = new Intent(context, NFC.class);
-                intent.putExtra("lec_location", current.location);
+                intent.putExtra("current", current);
                 context.startActivity(intent);
 
             } else if (result.equalsIgnoreCase("false")) {

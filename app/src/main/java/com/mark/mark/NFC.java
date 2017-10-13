@@ -21,8 +21,6 @@ import android.widget.Toast;
 
 public class NFC extends AppCompatActivity {
 
-    private NfcAdapter nfcAdapter;
-    TextView textViewInfo;
     public static DailyPeriod current;
     public static String lec_location;
     public static String subject;
@@ -33,9 +31,7 @@ public class NFC extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_nfc);
         setTitle("Scan NFC Tag");
-        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 
-//        textViewInfo = (TextView) findViewById(R.id.textInfo);
         current = (DailyPeriod) getIntent().getSerializableExtra("current");
     }
 
@@ -92,12 +88,12 @@ public class NFC extends AppCompatActivity {
 
 //            ((TextView) findViewById(R.id.textInfo)).setText("NFC Tag\n" + tagUID);
 
-            Toast.makeText(NFC.this, "NFC Detected", Toast.LENGTH_LONG).show();
+            Toast.makeText(NFC.this, "NFC Detected", Toast.LENGTH_SHORT).show();
             Intent _intent = new Intent(NFC.this, ScanFPActivity.class);
             _intent.putExtra("current", current);
             _intent.putExtra("tagUID", tagUID);
 
-            startActivity(intent);
+            startActivity(_intent);
             finish();
         }
     }

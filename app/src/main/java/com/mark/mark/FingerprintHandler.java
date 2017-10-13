@@ -6,8 +6,8 @@ package com.mark.mark;
 
 import android.Manifest;
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.hardware.fingerprint.FingerprintManager;
 import android.net.Uri;
@@ -18,37 +18,29 @@ import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Locale;
 
 @TargetApi(Build.VERSION_CODES.M)
 public class FingerprintHandler extends
         FingerprintManager.AuthenticationCallback {
 
     private CancellationSignal cancellationSignal;
-    private Context appContext;
-    SharedPreferences sharedPreferences;
-    public static final String MyPREFERENCES = "MyPrefs" ;
-    private String subject;
-    private String teacher;
-    private String username;
-    private String column;
-    private String NFC_UID;
-    private String lec_location;
-    private String table;
+    private Context context;
+    private String tagUID;
+    private DailyPeriod current;
 
 
-    public FingerprintHandler(Context context,String subject,String teacher,String lec_location) {
-        appContext = context;
-        this.subject = subject;
-        this.teacher = teacher;
-        this.lec_location = lec_location;
+    public FingerprintHandler(Context context, String tagUID, DailyPeriod current) {
+        this.context = context;
+        this.tagUID = tagUID;
+        this.current = current;
     }
 
-    public void startAuth(FingerprintManager manager,
-                          FingerprintManager.CryptoObject cryptoObject) {
+    public void startAuth(FingerprintManager manager, FingerprintManager.CryptoObject cryptoObject) {
 
         cancellationSignal = new CancellationSignal();
 
-        if (ActivityCompat.checkSelfPermission(appContext,
+        if (ActivityCompat.checkSelfPermission(context,
                 Manifest.permission.USE_FINGERPRINT) !=
                 PackageManager.PERMISSION_GRANTED) {
             return;
@@ -57,85 +49,72 @@ public class FingerprintHandler extends
     }
 
     @Override
-    public void onAuthenticationError(int errMsgId,
-                                      CharSequence errString) {
-        Toast.makeText(appContext,
+    public void onAuthenticationError(int errMsgId, CharSequence errString) {
+        Toast.makeText(context,
                 "Authentication error\n" + errString,
                 Toast.LENGTH_LONG).show();
     }
 
     @Override
-    public void onAuthenticationHelp(int helpMsgId,
-                                     CharSequence helpString) {
-        Toast.makeText(appContext,
+    public void onAuthenticationHelp(int helpMsgId, CharSequence helpString) {
+        Toast.makeText(context,
                 "Authentication help\n" + helpString,
                 Toast.LENGTH_LONG).show();
     }
 
     @Override
     public void onAuthenticationFailed() {
-        Toast.makeText(appContext,
+        Toast.makeText(context,
                 "Authentication failed.",
                 Toast.LENGTH_LONG).show();
     }
 
     @Override
-    public void onAuthenticationSucceeded(
-            FingerprintManager.AuthenticationResult result) {
+    public void onAuthenticationSucceeded(FingerprintManager.AuthenticationResult result) {
 
-        Toast.makeText(appContext,"Authentication succeeded.\n Proceeding to Mark present",
-                Toast.LENGTH_LONG).show();
+//        Toast.makeText(context, "Authentication succeeded.\nProceeding to Mark present",Toast.LENGTH_SHORT).show();
 
-        String date = new SimpleDateFormat("dd-MMM-yyyy").format(Calendar.getInstance().getTime());
-        sharedPreferences = appContext.getSharedPreferences(MyPREFERENCES, LoginActivity.MODE_PRIVATE);
-        username = sharedPreferences.getString("username","");
-        column = date;
-        NFC_UID = sharedPreferences.getString("NFC_UID","");
-        table = subject+"-"+teacher;
-
-        new AsyncMark(appContext,"present.inc.php");
+        new AsyncMark(context, "markAT.php");
     }
 
-    private class AsyncMark extends GlobalAsyncTask{
+    private class AsyncMark extends GlobalAsyncTask {
 
-        AsyncMark(Context context, String url){
-            super(context,url);
+
+        AsyncMark(Context context, String url) {
+            super(context, url);
             execute();
         }
 
         @Override
         public Uri.Builder urlBuilder() {
+            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+            String date = df.format(Calendar.getInstance().getTime());
             return new Uri.Builder()
-                    .appendQueryParameter("username", username)
-                    .appendQueryParameter("column", column)
-                    .appendQueryParameter("NFC_UID", NFC_UID)
-                    .appendQueryParameter("location", lec_location)
-                    .appendQueryParameter("table", table);
+                    .appendQueryParameter("subid", current.subid)
+                    .appendQueryParameter("tid", current.tid)
+                    .appendQueryParameter("date", date)
+                    .appendQueryParameter("start", current.START)
+                    .appendQueryParameter("sid", UserDetails.sid)
+                    .appendQueryParameter("tagid", tagUID)
+                    .appendQueryParameter("loc", current.location);
         }
 
         @Override
-        public void goPostExecute(String result,String content) {
+        public void goPostExecute(String result, String content) {
 
-            if(result.equalsIgnoreCase("true"))
-            {
-                Toast.makeText(appContext, "Marked Present!", Toast.LENGTH_LONG).show();
-
-            } else if (result.equalsIgnoreCase("illegal")){
-
-                // If NFC UID not present in database does not match display a error message
-                Toast.makeText(appContext, "Illegal NFC tag", Toast.LENGTH_LONG).show();
-
-            } else if (result.equalsIgnoreCase("false")){
-
-                // If username and password does not match display a error message
-                Toast.makeText(appContext, "Unable to Mark Present!", Toast.LENGTH_LONG).show();
-
+            if (result.equalsIgnoreCase("true")) {
+                Toast.makeText(context, "Marked Present!", Toast.LENGTH_LONG).show();
+            } else if (result.equalsIgnoreCase("nfc false")) {
+                Toast.makeText(context, "Incorrect Location", Toast.LENGTH_LONG).show();
+            } else if (result.equalsIgnoreCase("false")) {
+                Toast.makeText(context, "Unable to Mark Present!", Toast.LENGTH_LONG).show();
+            } else{
+                Toast.makeText(context, "Error!", Toast.LENGTH_LONG).show();
             }
-//            Toast.makeText(TempFP.this, "Kuch b nahi Present!" + result, Toast.LENGTH_LONG).show();
+            ((Activity) context).finish();
         }
 
     }
-
 
 
 }

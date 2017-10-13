@@ -31,14 +31,9 @@ import javax.crypto.SecretKey;
 
 public class ScanFPActivity extends AppCompatActivity {
 
-    private FingerprintManager fingerprintManager;
-    private KeyguardManager keyguardManager;
     private KeyStore keyStore;
-    private KeyGenerator keyGenerator;
     private static final String KEY_NAME = "example_key";
     private Cipher cipher;
-    private FingerprintManager.CryptoObject cryptoObject;
-    private String subject,teacher,lec_location;
 
     @TargetApi(Build.VERSION_CODES.M)
     @Override
@@ -46,15 +41,12 @@ public class ScanFPActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scan_fp);
 
-        subject = getIntent().getStringExtra("subject");;
-        teacher = getIntent().getStringExtra("teacher");
-        lec_location = getIntent().getStringExtra("lec_location");
+        String tagUID = getIntent().getStringExtra("tagUID");
+        DailyPeriod current = (DailyPeriod) getIntent().getSerializableExtra("current");
         setTitle("Scan Fignerprint");
 
-        keyguardManager =
-                (KeyguardManager) getSystemService(KEYGUARD_SERVICE);
-        fingerprintManager =
-                (FingerprintManager) getSystemService(FINGERPRINT_SERVICE);
+        KeyguardManager keyguardManager = (KeyguardManager) getSystemService(KEYGUARD_SERVICE);
+        FingerprintManager fingerprintManager = (FingerprintManager) getSystemService(FINGERPRINT_SERVICE);
 
 
         if (!keyguardManager.isKeyguardSecure()) {
@@ -96,8 +88,8 @@ public class ScanFPActivity extends AppCompatActivity {
         generateKey();
 
         if (cipherInit()) {
-            cryptoObject = new FingerprintManager.CryptoObject(cipher);
-            FingerprintHandler helper = new FingerprintHandler(this, subject,teacher,lec_location);
+            FingerprintManager.CryptoObject cryptoObject = new FingerprintManager.CryptoObject(cipher);
+            FingerprintHandler helper = new FingerprintHandler(this, tagUID, current);
             helper.startAuth(fingerprintManager, cryptoObject);
         }
 
@@ -111,6 +103,7 @@ public class ScanFPActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
+        KeyGenerator keyGenerator;
         try {
             keyGenerator = KeyGenerator.getInstance(
                     KeyProperties.KEY_ALGORITHM_AES,
